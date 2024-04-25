@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Register - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+        }
+        h2 {
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 10px;
+        }
+        .navbar-brand img {
+            filter: hue-rotate(300deg);
+        }
+        .registration-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .error-message {
+            color: red;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            let valid = true;
+            let phone = document.getElementById("phone").value;
+            let postalCode = document.getElementById("postalCode").value;
+            let email = document.getElementById("email").value;
+
+            // Clear previous error messages
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = "");
+
+            // Validate phone number (allowing 8 digits only)
+			if (!/^\d{8}$/.test(phone)) {
+			    document.getElementById("phone-error").textContent = "Please enter a valid 8-digit phone number.";
+			    valid = false;
+			}
+
+            // Validate postal code (allowing 6 digits only)
+			if (!/^\d{6}$/.test(postalCode)) {
+			    document.getElementById("postalCode-error").textContent = "Please enter a valid 6-digit postal code.";
+			    valid = false;
+			}
+
+            // Validate email address
+            if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+                document.getElementById("email-error").textContent = "Please enter a valid email address.";
+                valid = false;
+            }
+            
+            // Validate username (must be at least 5 characters)
+		    let username = document.getElementById("username").value;
+		    if (username.length < 5) {
+		        document.getElementById("username-error").textContent = "Username must be at least 5 characters long.";
+		        valid = false;
+		    }
+		
+		    // Validate password (must be at least 8 characters)
+		    let password = document.getElementById("password").value;
+		    if (password.length < 8) {
+		        document.getElementById("password-error").textContent = "Password must be at least 8 characters long.";
+		        valid = false;
+		    }
+
+            return valid; // If valid is false, the form won't be submitted
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/index">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+	<div class="container mt-5">
+	    <div class="row justify-content-center">
+	        <div class="col-md-8">
+	            <div class="registration-container">
+	                <h2>Register</h2>
+	                <form th:action="@{/registerUser}" method="post" onsubmit="return validateForm();">
+	                    <!-- Display error message if registration fails -->
+	                    <p th:if="${registrationError}" class="alert alert-danger">Registration failed. Please try again.</p>
+						<div class="form-group">
+						    <label for="username">Username (min. 5 characters):</label>
+						    <input type="text" class="form-control" id="username" name="username" minlength="5" required/>
+						    <span id="username-error" class="error-message"></span>
+						</div>
+						<div class="form-group">
+						    <label for="password">Password (min. 8 characters):</label>
+						    <input type="password" class="form-control" id="password" name="password" minlength="8" required/>
+						    <span id="password-error" class="error-message"></span>
+						</div>
+	                    <div class="form-group row">
+	                        <div class="col">
+	                            <label for="firstName">First Name:</label>
+	                            <input type="text" class="form-control" id="firstName" name="firstName" required/>
+	                        </div>
+	                        <div class="col">
+	                            <label for="lastName">Last Name:</label>
+	                            <input type="text" class="form-control" id="lastName" name="lastName" required/>
+	                        </div>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="dateOfBirth">Date of Birth:</label>
+	                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" required/>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="phoneNumber">Phone Number (8-digits):</label>
+	                        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" minlength="8" maxlength="8" required/>
+	                        <span id="phone-error" class="error-message"></span>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="addressLine1">Address Line 1:</label>
+	                        <input type="text" class="form-control" id="addressLine1" name="addressLine1" required/>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="addressLine2">Address Line 2:</label>
+	                        <input type="text" class="form-control" id="addressLine2" name="addressLine2"/>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="postalCode">Postal Code (6-digits):</label>
+	                        <input type="text" class="form-control" id="postalCode" name="postalCode" minlength="6" maxlength="6" required/>
+	                        <span id="postalCode-error" class="error-message"></span>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="emailAddress">Email Address:</label>
+	                        <input type="email" class="form-control" id="emailAddress" name="emailAddress" required/>
+	                        <span id="email-error" class="error-message"></span>
+	                    </div>
+	                    <button type="submit" class="btn btn-primary" style="background-color: #FF69B4;">Register</button>
+	                </form>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Transactions - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <script src="/js/creditTransactions.js"></script>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+            font-family: Arial, sans-serif;
+        }
+        .navbar-brand img {
+            filter: hue-rotate(300deg);
+        }
+        .box {
+            background-color: #FFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 10px;
+        }
+        .fas.fa-credit-card, .fas.fa-university {
+            color: #FF69B4; /* Barbie Pink */
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/dashboard">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/bank-account">Bank Accounts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/credit-card">Credit Cards</a>
+                </li>
+				<li class="nav-item dropdown">
+				    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        Transactions
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				        <a class="dropdown-item" href="/transactions/bank-account">Bank Accounts</a>
+				        <a class="dropdown-item" href="/transactions/credit-card">Credit Cards</a>
+				    </div>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forexList">Foreign Exchange</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/chatbot">AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/stocks">Stocks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news">News</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+	    <div class="row justify-content-center">
+			<!-- Credit Card Payment Form -->
+			<div class="col-md-12 col-sm-12 box">
+				<h3>Credit Card Payment <i class="fas fa-comments-dollar" style="color: #FF69B4"></i></h3>
+				<form action="#" id="payment-form" th:action="@{/submitpayment}" th:object="${creditPaymentRequestForm}"  method="post">
+					<label for="cardNumber">Select Credit Card:</label>
+					<select class="form-control" id="cardSelector" name="cardId">
+						<!-- Credit card options populated from server -->
+						<option th:each="card : ${creditCards}" th:value="${card.cardId}" th:text="${#strings.concat(#strings.substring(card.cardNumber,0,4),'-',#strings.substring(card.cardNumber,4,8),'-',#strings.substring(card.cardNumber,8,12),'-',#strings.substring(card.cardNumber,12,16))}"></option>
+					</select>
+					<br>
+					<label for="expirydate">Expiry Date (MM/YYYY):</label>
+					<input type="number" id="expirydatemonth" name="expirydatemonth" min="1" max="12" required>
+					<label for="expirydateslash">/</label>
+					<input type="number" id="expirydateyear" name="expirydateyear" min="2023" max="2030" required>
+					<br>
+					<label for="cvv">CVV:</label>
+					<input type="text" id="cvv" name="cvv" min="1" max="999" required>
+					<br>
+					<label for="fromCurrency">Choose Currency for Payment:</label>
+					<select class="form-control" id="fromCurrency" name="fromCurrency">
+						<option th:each="currency : ${currencies}" th:value="${currency.code}" th:text="${currency.name}"></option>
+					</select>
+					<br>
+					<label for="amount">Amount:</label>
+					<input type="number" id="amount" name="amount" min="1" step="0.01" required>
+					<br>
+					<label for="merchant">Merchant Name:</label>
+					<input type="text" id="merchant" name="merchant" required>
+					<br>
+					<label for="mcc">Merchant Category Code:</label>
+					<input type="number" id="mcc" name="mcc" min="1" max="9999" required>
+					<br>
+					<button type="submit" class="btn btn-primary" style="background-color: #FF69B4; border: none;">Submit Payment</button>
+
+                </form>
+			<div th:if="${insufficientLimitError}" class="alert alert-danger mt-2" role="alert">
+                <span th:text="${insufficientLimitError}"></span>
+            </div>
+            <div th:if="${wrongcvvError}" class="alert alert-danger mt-2" role="alert">
+                <span th:text="${wrongcvvError}"></span>
+            </div>
+            <div th:if="${wrongExpirationError}" class="alert alert-danger mt-2" role="alert">
+                <span th:text="${wrongExpirationError}"></span>
+            </div>
+			</div>
+            
+	        <!-- Credit Card Transactions -->
+	        <div class="col-md-12 col-sm-12 box">
+                <h3>Credit Card Transactions <i class="fas fa-credit-card"></i></h3>
+                <div class="row" style="margin-bottom: 20px;">
+				    <div class="col-md-12">
+				        <input type="text" id="searchInput" placeholder="Search by date,description,type or amount..." class="form-control" onkeyup="searchTableCredit()">
+				    </div>
+				</div>
+    		<div style="margin-top: 20px;">			
+                <form method="post" action="/transactions/credit-card">
+                <select class="form-control" name="cardSelector" th:value="${cardSelector}" id="cardSelector" th:required="true" onchange="loadTransaction()">
+                    <!-- Credit card options populated from server -->
+                    <option id=0 th:selected="${cardSelector == 0}" value=0>Select Credit Card</option>
+                    <option th:each="card : ${creditCards}" th:value="${card.cardId}" th:selected="${card.cardId == cardSelector}"
+                    th:text="${#strings.concat('****-****-****-',#strings.substring(card.cardNumber,12,16))}"></option>
+                </select>
+              
+            <!-- Information Box -->
+            <div class="box mb-3" style="padding: 20px; background-color: #FFF; border-radius: 10px; margin-top: 20px;">
+                <div class="row">
+                    <div class="col">
+                        <strong>Remaining Card Limit:</strong> <span th:text="${remainingLimit}"></span>
+                    </div>
+                
+                </div>
+            </div>
+            
+	            <table class="table mt-3">
+	                <thead>
+	                    <tr>
+	                        <th scope="col">Date</th>
+	                        <th scope="col">Description</th>
+	                        <th scope="col">Type</th>
+	                        <th scope="col">Amount (SGD)</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+                        <!-- Credit card transaction details populated from server -->
+                        <tr th:each="transaction : ${creditCardTransactions}">
+                            <td th:text="${transaction.transaction_date}"></td>
+                            <td th:text="${transaction.description}"></td>
+                            <td th:text="${transaction.type}"></td>
+                            <td th:text="${transaction.amount}"></td>
+                            <!--Will need to edit the details above-->
+                        </tr>
+                    </tbody>
+	            </table>
+	            <button id="loadtransactions" type="submit" hidden></button>
+	            </form>
+				   <div class="transaction-table"></div>
+			        <!-- Pagination Controls -->
+			        <nav>
+			            <ul class="pagination" id="pagination"></ul>
+			        </nav>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<script>
+	function loadTransaction() {
+	    document.getElementById("loadtransactions").click();
+	}
+	
+	document.getElementById('searchInput').addEventListener('keyup', searchTableCredit);
+	
+	var filteredRowsCredit = []; // Variable to keep track of filtered rows
+	
+	function initializeTableCredit() {
+	    var table = document.querySelector('.table');
+	    var tr = table.getElementsByTagName('tr');
+	    for (var i = 1; i < tr.length; i++) {
+	        filteredRowsCredit.push(tr[i]); // Add all rows to filteredRows initially
+	    }
+	    paginateTableCredit(); // Call paginateTable to initialize pagination
+	}
+	
+	function searchTableCredit() {
+	    var input, filter, table, tr, td, i, txtValue;
+	    input = document.getElementById('searchInput');
+	    filter = input.value.toUpperCase();
+	    table = document.querySelector('.table');
+	    tr = table.getElementsByTagName('tr');
+	    filteredRowsCredit = []; // Reset filtered rows
+	
+	    for (i = 1; i < tr.length; i++) {
+	        td = tr[i].getElementsByTagName('td');
+	        txtValue = '';
+	        for (var j = 0; j < td.length; j++) {
+	            if (td[j]) {
+	                txtValue += td[j].textContent || td[j].innerText;
+	            }
+	        }
+	        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+	            filteredRowsCredit.push(tr[i]); // Add to filtered rows if it matches
+	        }
+	    }
+	
+	    // Call paginateTable to update pagination after search
+	    paginateTableCredit();
+	}
+	
+	function paginateTableCredit() {
+	    var numPages, numRowsPerPage, pagination, i;
+	    numRowsPerPage = 5; // Display 5 rows per page
+	    numPages = Math.ceil(filteredRowsCredit.length / numRowsPerPage);
+	    pagination = document.getElementById('pagination');
+	    pagination.innerHTML = '';
+	
+	    for (i = 0; i < numPages; i++) {
+	        var li = document.createElement('li');
+	        li.className = 'page-item';
+	        li.innerHTML = '<a class="page-link" href="#" onclick="showPageCredit(' + i + ')">' + (i + 1) + '</a>';
+	        pagination.appendChild(li);
+	    }
+	
+	    showPageCredit(0); // Show the first page
+	}
+	
+	function showPageCredit(pageNum) {
+	    var start, end, i;
+	    start = pageNum * 5; // Starting row
+	    end = start + 5; // Ending row
+	
+	    // Hide all rows
+	    var allRows = document.querySelector('.table').getElementsByTagName('tr');
+	    for (i = 1; i < allRows.length; i++) {
+	        allRows[i].style.display = 'none';
+	    }
+	
+	    // Show only the filtered rows for this page
+	    for (i = start; i < end && i < filteredRowsCredit.length; i++) {
+	        filteredRowsCredit[i].style.display = '';
+	    }
+	}
+	
+	// Call paginateTable to initialize pagination
+	initializeTableCredit();
+	</script>
+</body>
+</html>

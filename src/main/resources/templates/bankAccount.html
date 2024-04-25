@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Bank Account - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+            font-family: Arial, sans-serif;
+        }
+        .navbar-brand img {
+            filter: hue-rotate(300deg);
+        }
+        .box {
+            background-color: #FFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 10px;
+        }
+        .table {
+            font-size: 14px;
+        }
+        .open-account-btn {
+            background-color: #FF69B4;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+        .open-account-btn.disabled {
+	        background-color: #ccc;
+	        cursor: not-allowed;
+	        pointer-events: none; /* Prevent click events */
+        }
+        .clickable-box {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clickable-box:hover {
+            text-decoration: none;
+        }
+         .disabled-link {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/dashboard">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/bank-account">Bank Accounts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/credit-card">Credit Cards</a>
+                </li>
+				<li class="nav-item dropdown">
+				    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        Transactions
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				        <a class="dropdown-item" href="/transactions/bank-account">Bank Accounts</a>
+				        <a class="dropdown-item" href="/transactions/credit-card">Credit Cards</a>
+				    </div>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forexList">Foreign Exchange</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/chatbot">AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/stocks">Stocks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news">News</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-sm-12 box">
+                
+                <h3>Bank Accounts</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Account Number</th>
+
+                            <th scope="col">Balance</th>
+                        </tr>
+                    </thead>
+                    
+	                    
+	                <tbody th:each="bankAccount : ${bankAccounts}">
+                        <tr>
+                           	<td scope="col" th:text="${#strings.concat(#strings.substring(bankAccount.accountNumber,0,4),'-',#strings.substring(bankAccount.accountNumber,4,8),'-',#strings.substring(bankAccount.accountNumber,8,12))}"></td>
+                             <td scope="col" th:text="${#numbers.formatCurrency(bankAccount.balance)}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                 <form action="/bank-account" method="post">
+                 
+                	<button th:if="${bankAccounts.size + closedBankAccounts.size < 5}" class="open-account-btn" type="submit">Open A New Bank Account</button>
+                	
+                	<div th:if="${bankAccounts.size + closedBankAccounts.size >= 5}" >
+                		<button class="open-account-btn disabled"> Open A New Bank Account</button>
+                		<p style="color:red;">You have hit the maximum bank account opened limit!</p>
+                	</div>
+                	
+                </form>
+                
+            </div>
+            <div class="col-md-4 col-sm-4"> <!-- Boxes Column -->
+                <a href="/deposit" class="clickable-box">
+                    <div class="box">
+                        <h3><i class="fas fa-arrow-down"></i> Deposit</h3>
+                    </div>
+                </a>
+                <a href="/withdraw" class="clickable-box">
+                    <div class="box">
+                        <h3><i class="fas fa-arrow-up"></i> Withdraw</h3>
+                    </div>
+                </a>
+                <a href="/transfer" class="clickable-box">
+                    <div class="box">
+                        <h3><i class="fas fa-exchange-alt"></i> Transfer</h3>
+                    </div>
+                </a>
+                <a href="/close-account" class="clickable-box close-account-link" th:classappend="${#lists.size(bankAccounts) == 1} ? 'disabled-link' : ''">
+                    <div class="box">
+                        <h3><i class="fas fa-times"></i> Close Account</h3>
+                    </div>
+                </a>
+
+            </div>
+            
+            <div class="col-md-8 col-sm-12 box">
+                <h3>Closed Bank Accounts</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Account Number</th>
+
+                            <th scope="col">Closed Date</th>
+                        </tr>
+                    </thead>
+                    
+	                    
+	                <tbody th:each="bankAccount : ${closedBankAccounts}">
+                        <tr>
+                           <td scope="col" th:text="${#strings.concat(#strings.substring(bankAccount.accountNumber,0,4),'-',#strings.substring(bankAccount.accountNumber,4,8),'-',#strings.substring(bankAccount.accountNumber,8,12))}"></td>
+                           <td scope="col" th:text="${bankAccount.dateClosed}"></td>
+                        </tr>
+                    </tbody>
+                </table>            
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+    // Dummy data representing existing bank accounts
+    var accounts = [];
+
+    function openNewAccount() {
+        if (accounts.length >= 5) {
+            document.getElementById('alert-box').textContent = "You can only create up to 5 bank accounts.";
+            document.getElementById('alert-box').style.display = "block";
+            return;
+        }
+        
+        // Logic to open a new account
+        // e.g. accounts.push(newAccount);
+    
+        if (accounts.length >= 5) {
+            // Deactivate the button if 5 bank accounts are created
+            document.querySelector('.open-account-btn').classList.add('disabled');
+        }
+    
+        // Optionally, hide the alert box if a new account is successfully created
+        document.getElementById('alert-box').style.display = "none";
+    }    
+    </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Transactions - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+            font-family: Arial, sans-serif;
+        }
+        .navbar-brand img {
+            filter: hue-rotate(300deg);
+        }
+        .box {
+            background-color: #FFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 10px;
+        }
+        .fas.fa-credit-card, .fas.fa-university {
+            color: #FF69B4; /* Barbie Pink */
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/dashboard">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/bank-account">Bank Accounts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/credit-card">Credit Cards</a>
+                </li>
+				<li class="nav-item dropdown">
+				    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        Transactions
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				        <a class="dropdown-item" href="/transactions/bank-account">Bank Accounts</a>
+				        <a class="dropdown-item" href="/transactions/credit-card">Credit Cards</a>
+				    </div>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forexList">Foreign Exchange</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/chatbot">AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/stocks">Stocks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news">News</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+	    <div class="row justify-content-center">
+	        <!-- Bank Account Transactions -->
+	        <div class="col-md-12 col-sm-12 box">
+	            <h3>Bank Account Transactions <i class="fas fa-university"></i></h3>
+				<div class="row mb-3">
+				    <div class="col-md-12">
+				        <input type="text" id="searchInputBank" placeholder="Search by date, description, or amount..." class="form-control" onkeyup="searchTable()">
+				    </div>
+				</div>            
+                <form method="post" action="/transactions/bank-account">
+                <label for="accountSelector">Select Account:</label>
+                <select class="form-control mb-3" name="accountSelector" th:value="${accountSelector}" id="accountSelector" th:required="true" onchange="loadTransaction()">
+                    <!-- Account options populated from server -->
+                    <option id=0 value=0 th:selected="${selectedAcc == 0l}">Select Bank Account</option>
+                    <option th:each="account : ${accounts}" th:value="${account.bankAccountId}" th:selected="${selectedAcc == account.accountNumber}"
+                    th:text="${#strings.concat(#strings.substring(account.accountNumber,0,4),'-',#strings.substring(account.accountNumber,4,8),'-',#strings.substring(account.accountNumber,8,12))}"></option>
+                </select>
+                
+				<!-- Information Box -->
+				<div class="box mb-3" style="padding: 20px; background-color: #FFF; border-radius: 10px; margin-top: 20px;"> <!-- Increased padding and added margin-top -->
+				    <div class="row">
+				        <div class="col">
+				            <strong>Current Balance:</strong> <span th:text="${#numbers.formatCurrency(currentBalance)}">$0.00</span>
+				        </div>
+				        <div class="col">
+				            <strong>Transactions:</strong> <span th:text="${#strings.concat('(' , totalCount, ' transactions)')}">(0 transactions)</span>
+				        </div>
+				    </div>
+				</div>
+				
+				<table class="table mt-3">
+				    <thead>
+				        <tr>
+				            <th scope="col">Date</th>
+				            <th scope="col">Description</th>
+				            <th scope="col">Credit</th>
+				            <th scope="col">Debit</th>
+				        </tr>
+				    </thead>
+				    <tbody>
+				        <!-- Bank account transaction details populated from server -->
+				        <tr th:each="transaction : ${bankAccountTransactions}">
+				            <td th:text="${transaction.transaction_date}"></td>
+				            <td th:text="${transaction.description}"></td>
+				            <td th:text="${transaction.credit > 0 ? #strings.concat('-',transaction.credit) : ''}" style="color: red;"></td>
+				            <td th:text="${transaction.debit > 0 ? #strings.concat('+',transaction.debit) : ''}" style="color: green;"></td>
+				        </tr>
+				    </tbody>
+				    <tfoot>
+				    </tfoot>
+				</table>
+	            <!-- Pagination Controls -->
+				<nav>
+				    <ul class="pagination" id="paginationBank"></ul>
+				</nav>
+	            <button id="loadtransactions" type="submit" hidden></button>
+	            </form>
+	        </div>
+	    </div>
+	</div>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+function loadTransaction() {
+    document.getElementById("loadtransactions").click();
+}
+
+var filteredRows = []; // Variable to keep track of filtered rows
+
+function initializeTable() {
+    var table = document.querySelector('.table');
+    var tr = table.getElementsByTagName('tr');
+    for (var i = 1; i < tr.length; i++) {
+        filteredRows.push(tr[i]); // Add all rows to filteredRows initially
+    }
+    paginateTable(); // Call paginateTable to initialize pagination
+}
+
+function searchTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById('searchInputBank');
+    filter = input.value.toUpperCase();
+    table = document.querySelector('.table');
+    tr = table.getElementsByTagName('tr');
+    filteredRows = []; // Reset filtered rows
+
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName('td');
+        txtValue = '';
+        for (var j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue += td[j].textContent || td[j].innerText;
+            }
+        }
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            filteredRows.push(tr[i]); // Add to filtered rows if it matches
+        }
+    }
+
+    // Call paginateTable to update pagination after search
+    paginateTable();
+}
+
+function paginateTable() {
+    var numPages, numRowsPerPage, pagination, i;
+    numRowsPerPage = 5; // Display 5 rows per page
+    numPages = Math.ceil(filteredRows.length / numRowsPerPage);
+    pagination = document.getElementById('paginationBank');
+    pagination.innerHTML = '';
+
+    for (i = 0; i < numPages; i++) {
+        var li = document.createElement('li');
+        li.className = 'page-item';
+        li.innerHTML = '<a class="page-link" href="#" onclick="showPage(' + i + ')">' + (i + 1) + '</a>';
+        pagination.appendChild(li);
+    }
+
+    showPage(0); // Show the first page
+}
+
+function showPage(pageNum) {
+    var start, end, i;
+    start = pageNum * 5; // Starting row
+    end = start + 5; // Ending row
+
+    // Hide all rows
+    var allRows = document.querySelector('.table').getElementsByTagName('tr');
+    for (i = 1; i < allRows.length; i++) {
+        allRows[i].style.display = 'none';
+    }
+
+    // Show only the filtered rows for this page
+    for (i = start; i < end && i < filteredRows.length; i++) {
+        filteredRows[i].style.display = '';
+    }
+}
+
+// Call paginateTable to initialize pagination
+initializeTable();
+</script>
+</body>
+</html>

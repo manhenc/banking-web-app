@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Bank Account - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+            font-family: Arial, sans-serif;
+        }
+        .navbar-brand img {
+            filter: hue-rotate(300deg);
+        }
+        .box {
+            background-color: #FFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            border-bottom: 2px solid #FF69B4;
+            padding-bottom: 10px;
+        }
+        .table {
+            font-size: 14px;
+        }
+        .open-account-btn {
+            background-color: #FF69B4;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+        .open-account-btn.disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        pointer-events: none; /* Prevent click events */
+        }
+        .clickable-box {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clickable-box:hover {
+            text-decoration: none;
+        }
+        #close-account-box{
+        	display: none;
+        }
+        #closedBtn.disabled{
+	        background-color: #ccc;
+	        cursor: not-allowed;
+	        pointer-events: none; /* Prevent click events */
+	    }
+        
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/dashboard">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/bank-account">Bank Accounts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/credit-card">Credit Cards</a>
+                </li>
+				<li class="nav-item dropdown">
+				    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        Transactions
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				        <a class="dropdown-item" href="/transactions/bank-account">Bank Accounts</a>
+				        <a class="dropdown-item" href="/transactions/credit-card">Credit Cards</a>
+				    </div>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forexList">Foreign Exchange</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/chatbot">AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/stocks">Stocks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news">News</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-sm-12 box">
+            
+            <div id="bank-account-error-msg">
+	            <div id="alert-box" class="alert alert-danger" th:if="${errorMsg != null}" th:text="${errorMsg}">
+	    		</div>
+    		</div>
+    			
+                <!-- Close Bank Account Section -->
+                <h3>Close Bank Account:</h3>
+                
+                <form action="/close-account" method="post">
+                    <div class="form-group">
+                     	<input type="hidden" th:value="${srcBankAccountId}" name="srcBankAccountId" id="srcBankAccountId"/>
+                        <label for="closeAccountNumber">Select Bank Account to Close:</label>
+                        <select class="form-control" id="closeAccountNumber" name="closeAccountNumber" th:required="true" th:onchange="displayCloseAccountBox(this)">
+                         	<option id=0>Select bank account</option>
+                           <option th:each="bankAccount : ${bankAccounts}" 
+	                        th:text="${#strings.concat(#strings.substring(bankAccount.accountNumber,0,4),'-',#strings.substring(bankAccount.accountNumber,4,8),'-',#strings.substring(bankAccount.accountNumber,8,12))}"
+	                        th:id="${bankAccount.bankAccountId}" th:value="${#numbers.formatCurrency(bankAccount.balance)}">
+	                        </option>
+                        </select>
+                    </div>
+                    
+                    <div id="close-account-box">
+                    
+                       
+                   <div class="form-group">
+	                    <label for="currentBalance">Current Balance($):</label>
+	                    <input type="text" class="form-control" name="currentBalance" id="currentBalance" th:value="${currentBalance}" readonly>
+	                </div>
+                    
+                    <div class="form-group">
+                     <input type="hidden" th:value="${destBankAccountId}" name="destBankAccountId" id="destBankAccountId"/>
+                        <label for="transferAccountNumber">Select Bank Account to Transfer Funds:</label>
+                        <select class="form-control" id="transferAccountNumber" name="transferAccountNumber" th:required="true" th:onchange="changeDestAccNum(this)">
+                        	<option id=0>Select bank account</option>
+                            <option th:each="bankAccount : ${bankAccounts}" 
+	                        th:text="${#strings.concat(#strings.substring(bankAccount.accountNumber,0,4),'-',#strings.substring(bankAccount.accountNumber,4,8),'-',#strings.substring(bankAccount.accountNumber,8,12))}"
+	                        th:id="${bankAccount.bankAccountId}" th:value="${#numbers.formatCurrency(bankAccount.balance)}">
+	                        </option>
+                        </select>
+                      
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Enter Password:</label>
+                        <input type="password" class="form-control" th:value="${password}" id="password" name="password" placeholder="Enter password" th:required="true" oninput="inputPassword()">
+                    </div>
+                    <button type="submit" class="btn btn-danger" id="closedBtn">Close Account</button>
+                    
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+    
+	    let srcSelected = 0;
+	    let destSelected = 0;
+	    let isPasswordValid = false;
+	    let srcBalance = "$0.00";
+		
+	    function displayCloseAccountBox(e){
+	    	
+	    	const bankAccountId = e[e.selectedIndex].id;
+			const balance = e[e.selectedIndex].value;
+			srcSelected = bankAccountId;
+			srcBalance = balance;
+			
+			//a bank account for closing is selected
+			if(bankAccountId != 0){
+				document.getElementById("close-account-box").style.display = "block";
+				document.getElementById("srcBankAccountId").value = bankAccountId;
+				document.getElementById("currentBalance").value = balance.replace("$","");
+				
+				//when the account to close has no funds to be transferred
+				if(balance=="$0.00"){
+					document.getElementById("transferAccountNumber").selectedIndex = 0;
+					document.getElementById("destBankAccountId").value = 0;
+					document.getElementById("transferAccountNumber").disabled = true;
+				}else{
+					document.getElementById("transferAccountNumber").disabled = false;
+				}
+			}
+			
+			//no bank account selected is closed
+			else{
+				document.getElementById("close-account-box").style.display = "none";
+			}	
+			
+			checkCloseAccEligibility();
+		}
+	    
+	    function changeDestAccNum(e){
+	    	const bankAccountId = e[e.selectedIndex].id;
+			destSelected = bankAccountId;
+			document.getElementById("destBankAccountId").value = bankAccountId;
+			checkCloseAccEligibility();
+	    }
+	    
+	    function inputPassword(){
+    		let passwordLength = document.getElementById("password").value.length;
+	    	if(passwordLength >= 8){
+	    		isPasswordValid = true;
+	    	}else{
+	    		isPasswordValid = false;
+	    	}
+	    	
+	    	checkCloseAccEligibility();
+	    }
+	    
+	    function checkCloseAccEligibility(){
+	    	
+	    	if(isPasswordValid && (srcBalance=="$0.00" || destSelected != 0)){
+	    		if(document.getElementById("closedBtn").classList.contains("disabled")){
+					document.getElementById("closedBtn").classList.remove("disabled");
+					document.getElementById("closedBtn").disabled = false;
+					document.getElementById("closedBtn").classList.add("btn-danger");
+				}
+	    	}else{
+	    		
+	    		if(document.getElementById("closedBtn").classList.contains("btn-danger")){
+					document.getElementById("closedBtn").classList.remove("btn-danger");
+					document.getElementById("closedBtn").disabled = true;
+					document.getElementById("closedBtn").classList.add("disabled");
+				}
+	    	}
+	    }
+	    
+	 
+	    
+    </script>
+</body>
+</html>

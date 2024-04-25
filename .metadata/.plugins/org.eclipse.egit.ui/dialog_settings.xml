@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="org.eclipse.egit.ui.internal.clone.GitSelectWizardPageWizardSel" value="0"/>
+	<item key="GitSelectRepositoryPage.lastRepository" value="C:\Users\princ\Desktop\barbiebank\.git"/>
+	<list key="RepositorySelectionPage.UsedUris">
+		<item value="https://git.fdmgroup.com/jiayuan.ong/barbiebank.git"/>
+	</list>
+	<list key="EGit.KnownHosts">
+		<item value="bitbucket.org"/>
+		<item value="github.com"/>
+		<item value="git.eclipse.org"/>
+		<item value="git.fdmgroup.com"/>
+	</list>
+	<section name="GitImportWizard">
+	</section>
+</section>

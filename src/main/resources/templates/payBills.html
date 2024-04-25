@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Dashboard - Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script> <!-- Chart.js -->
+    <script src="/js/dashboard.js"></script>
+    <script th:inline="javascript">
+	   /*<![CDATA[*/
+	   let balances = /*[[${balances}]]*/ [100, 200, 300]; // example data
+	   let unpaidBills = /*[[${unpaidBills}]]*/ [50, 100, 150]; // example data
+	   /*]]>*/
+	</script> 
+	<style>
+	    body {
+	        background-color: #FFC0CB; /* Barbie Pink */
+	        font-family: Arial, sans-serif;
+	    }
+	    .navbar-brand img {
+	        filter: hue-rotate(300deg);
+	    }
+	    .box {
+	        background-color: #FFF;
+	        border-radius: 10px;
+	        padding: 20px;
+	        margin-bottom: 30px;
+	        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	    }
+	    h3 {
+	        border-bottom: 2px solid #FF69B4;
+	        padding-bottom: 10px;
+	    }
+	    .table {
+	        font-size: 14px;
+	    }
+	    .custom-container {
+	        padding-left: 15px; /* Add space to the left */
+	        padding-right: 15px; /* Add space to the right */
+	    }
+	</style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/dashboard">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/bank-account">Bank Accounts</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/credit-card">Credit Cards</a>
+                </li>
+				<li class="nav-item dropdown">
+				    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        Transactions
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				        <a class="dropdown-item" href="/transactions/bank-account">Bank Accounts</a>
+				        <a class="dropdown-item" href="/transactions/credit-card">Credit Cards</a>
+				    </div>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/forexList">Foreign Exchange</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/chatbot">AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/stocks">Stocks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news">News</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+        <div class="container mt-5">
+	    <div class="row justify-content-center">
+		    <div class="col-md-12 col-sm-12 box">
+				    <h1>Card Details</h1>
+				    <p>Card Number: [[${#strings.concat('****-****-****-',#strings.substring(card.cardNumber,12,16))}]]</p>
+				    <form th:action="@{/pay-bill}" method="post">
+				        <div class="form-group">
+				            <label for="selectAccount">Select Source Bank Account:</label>
+				            <select class="form-control" id="selectAccount" name="accountNumber" th:required="true" th:onchange="displayTransferBox(this)">
+				                <option id=0>Select bank account</option>
+				                <option th:each="bankAccount : ${bankAccounts}" 
+				                th:text="${#strings.concat(#strings.substring(bankAccount.accountNumber,0,4),'-',#strings.substring(bankAccount.accountNumber,4,8),'-',#strings.substring(bankAccount.accountNumber,8,12))}"
+				                th:id="${bankAccount.bankAccountId}" th:value="${#numbers.formatCurrency(bankAccount.balance)}">
+				                </option>
+				            </select>
+				        </div>
+				        
+				        <div id="transfer-box">
+				        <input type="hidden" th:value="${srcBankAccountId}" name="srcBankAccountId" id="srcBankAccountId"/>
+				        
+				        <div class="form-group">
+				            <label for="srcCurrentBalance">Current Balance($):</label>
+				            <input type="text" class="form-control" id="srcCurrentBalance" readonly>
+				        </div>
+				        <label for="pay-bill">Make bill payment:</label>
+				        <input type="number" id="transferAmount" name="paid" required oninput="validateAmount()">
+				        <!-- Hidden input field to pass card ID to the controller -->
+				        <input type="hidden" id="cardId" name="cardId" th:value="${card.cardId}">
+				        <input type="hidden" id="selectedAccountId" name="selectedAccountId">
+				        <button type="submit" id="submitButton" disabled>Pay Bills</button>
+				<div id="notEnoughMessage" style="display: none; color: red;">Not enough balance.</div>
+				    </form>
+				
+				    <form th:action="@{/credit-card}" method="get">
+				        <button type="submit" class="btn btn-secondary btn-sm small-btn">Back to credt card</button>
+				    </form>
+				    </div>
+				 </div>
+			</div>
+	</div>
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+	    function displayTransferBox(e){
+	    	
+				const bankAccountId = e[e.selectedIndex].id;
+				const balance = e[e.selectedIndex].value;
+				console.log(balance);
+				const balanceFloat = parseFloat(balance.replace("$",""));
+				 
+				if(bankAccountId != 0){
+					
+					document.getElementById("transfer-box").style.display = "block";
+					document.getElementById("srcBankAccountId").value = bankAccountId;
+					document.getElementById("srcCurrentBalance").value = balance.replace("$","");
+					document.getElementById("transferAmount").value = 0.00;
+					document.getElementById("bank-account-error-msg").style.display = "none";
+					
+					if(balance=="$0.00"){
+						document.getElementById("not-enough-msg").style.display="block";
+						document.getElementById("transferAmount").readOnly = true;
+						document.getElementById("destAccountNumber").readOnly = true;
+						
+					}else{
+						
+						document.getElementById("transferAmount").max = balanceFloat;
+						
+						document.getElementById("not-enough-msg").style.display="none";	
+						document.getElementById("transferAmount").readOnly = false;
+						document.getElementById("destAccountNumber").readOnly = false;
+						
+					}
+				}
+				
+				else{
+					document.getElementById("transfer-box").style.display = "none";
+					console.log(4);
+				}
+				
+	    	
+		}
+
+        function validateAmount() {
+            const transferAmount = parseFloat(document.getElementById("transferAmount").value);
+            const srcCurrentBalanceText = document.getElementById("srcCurrentBalance").value;
+            const srcCurrentBalance = parseFloat(srcCurrentBalanceText.replace(/[^0-9.-]+/g,"")); // Remove non-numeric characters
+        
+            const submitButton = document.getElementById("submitButton");
+            const notEnoughMessage = document.getElementById("notEnoughMessage");
+        
+            if (transferAmount < srcCurrentBalance) {
+                submitButton.disabled = false;
+                notEnoughMessage.style.display = "none";
+            } else {
+                submitButton.disabled = true;
+                notEnoughMessage.style.display = "block";
+            }
+        }
+        
+        
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>Barbie Bank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+    <style>
+        body {
+            background-color: #FFC0CB; /* Barbie Pink */
+        }
+        h3 {
+	        border-bottom: 2px solid #FF69B4;
+	        padding-bottom: 10px;
+	    }
+        .navbar-brand img {
+            filter: hue-rotate(300deg); /* Hue for Barbie theme */
+        }
+        .feature-container,
+        .service-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            min-height: 250px; /* Set a minimum height for the boxes */
+        }
+        .feature-icon,
+        .service-icon {
+            color: #FF69B4; /* Barbie Pink */
+        }
+        .about-section img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+        <a class="navbar-brand" href="/index">
+            <img th:src="@{/img/Logo.png}" width="200" height="40" alt="Barbie Bank">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/registerUser">Register</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1>Welcome to Barbie Bank!</h1>
+        <p>Your trusted partner for all your financial needs:</p>
+        
+        <!-- Features Section -->
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="feature-container text-center">
+                    <h3><a href="/login">Bank Accounts</a></h3>
+                    <p>Looking to start saving? <br> We offer a quick and fuss-free process!</p>
+                    <p><a href="/registerUser">Register</a> with us today!</p>
+                    <i class="feature-icon fas fa-piggy-bank fa-3x"></i>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="feature-container text-center">
+                    <h3><a href="/login">Credit Cards</a></h3>
+                    <p>Looking to earn rewards? <br> We offer an instant approval process!</p>
+                    <p><a href="/registerUser">Register</a> with us today!</p>
+                    <i class="feature-icon fas fa-credit-card fa-3x"></i>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="feature-container text-center">
+                    <h3><a href="/login">Personal Loans</a></h3>
+                    <p>Looking to pay for big-ticket purchases? <br> We offer a 0% interest fee!</p>
+                    <p><a href="/registerUser">Register</a> with us today!</p>
+                    <i class="feature-icon fas fa-hand-holding-usd fa-3x"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us & Contact Us Section -->
+        <div class="row mt-5 d-flex align-items-stretch">
+            <!-- About Us -->
+            <div class="col-lg-6">
+                <div class="about-container service-container text-center d-flex flex-column">
+                    <h3>About Us</h3>
+                    <p>Barbie Bank is a leading financial institution that provides a wide array of financial products and services. Our mission is to empower our customers with innovative solutions tailored to their needs.</p>
+                    <div class="text-center mt-auto">
+                        <i class="feature-icon fas fa-building fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Us -->
+            <div class="col-lg-6">
+                <div class="contact-container service-container text-center d-flex flex-column">
+                    <h3>Contact Us</h3>
+                    <p>For enquiries, you may contact us at the following address:</p>
+                    <address>
+                        <strong>Barbie Bank</strong><br>
+                        123 Barbie Lane<br>
+                        Doll City, DB 12345<br>
+                        <a href="tel:+123456789">+1 (234) 567-890</a>
+                    </address>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Footer -->
+	<footer class="text-center py-3" style="background-color: #FFB6C1;">
+    	<p>&copy; 2023 Barbie Bank | <a href="#">Terms & Conditions</a> | <a href="#">Privacy Policy</a></p>
+	</footer>
+
+	<!-- Bootstrap scripts -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
